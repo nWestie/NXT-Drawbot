@@ -18,14 +18,14 @@ On running, the program will first connect and handshake with the NXT, start the
 Fusion 360 can be used to create G-Code for the Drawbot. To do this, make a trace milling operation of any flat geometry to be drawn, and post process it using the post-processor found in the **Software** folder. In the milling operation, the cutting feed rate can be set as high as 3600 mm/min.
 
 #### Supported G & M codes:
--G0:     Rapid Move
--G1:     Move at Feedrate
--G4:     pause for P milliseconds
--G20/21: Use Inches/Millimeters, mm is suggested/standard
--G28:    Home Machine
--G90/91: Use Absolute or Relative coordinate system, Absolute is suggested/standard
--M3/4:   Pen Down
--M5:     Pen Up
+- G0:     Rapid Move
+- G1:     Move at Feedrate
+- G4:     pause for P milliseconds
+- G20/21: Use Inches/Millimeters, mm is suggested/standard
+- G28:    Home Machine
+- G90/91: Use Absolute or Relative coordinate system, Absolute is suggested/standard
+- M3/4:   Pen Down
+- M5:     Pen Up
 Note: Z commands can also be used for Pen Up/Down, Z heights <= 0 are down, Z > 0 is up
--M117:   Write to LCD
+- M117:   Write to LCD
 Note: G4,20,21,28,90, and 91 should be used on their own line. Putting them on the same line as other command could cause unexpected behavior.
