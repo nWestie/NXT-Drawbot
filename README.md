@@ -1,5 +1,5 @@
 # NXT Drawbot
-##### Drawbot is a pen plotter built using Lego Mindstorms NXT
+#### Drawbot is a pen plotter built using Lego Mindstorms NXT
 
 The plotter uses a rolling gantry, which has wheels on either side, rolling in parallel slots. The gantry is made up of a trussed beam and a moving carriage that holds the pen. It is controlled using standard G-Code, but somewhat simplified. This G-Code can be saved locally to the NXT and run from the program, or run using the NXT Driver program on a windows computer. Pictures of the plotter can be found in the **Pictures** folder, and a video of it in operation can be found here:
 **YOUTUBE LINK**
@@ -26,6 +26,7 @@ Fusion 360 can be used to create G-Code for the Drawbot. To do this, make a trac
 - G90/91: Use Absolute or Relative coordinate system, Absolute is suggested/standard
 - M3/4:   Pen Down
 - M5:     Pen Up
-Note: Z commands can also be used for Pen Up/Down, Z heights <= 0 are down, Z > 0 is up
 - M117:   Write to LCD
+
+Note: Z commands can also be used for Pen Up/Down, Z heights <= 0 are down, Z > 0 is up
 Note: G4,20,21,28,90, and 91 should be used on their own line. Putting them on the same line as other command could cause unexpected behavior.
