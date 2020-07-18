@@ -1,0 +1,282 @@
+//constant declaratons
+#define motorX OUT_B//motor mappings
+#define motorY OUT_C
+#define motorZ OUT_A
+#define limY SENSOR_4//limit switches
+#define limX SENSOR_1
+#define Xmax 190 //limit in mm for x and y movement
+#define Ymax 203
+#define Zdown -45//degrees to rotate Z motor for pen down
+#define Xscale 4.84//scaling values to convert mm to deg fro each axis
+#define Yscale 4.24
+const unsigned int Fmax = 3600; //max feedrate in mm/min
+
+struct drawbotState{
+  float x, y, prevX, prevY; //sttate variables always in absolute mm
+  unsigned int f, p; //feed in mm/minute, p is pause time in ms
+  byte mvmt, once;//numbers showing movement setting and one time commands(G4, etc.)
+  bool inch, inc, draw; //flags showing if commands are in inch or mm, incramental or absolute, and pen up or down(draw is true on pen down)
+};
+//predeclaring functons
+bool tol(int test, int compareTo, int tolerance = 3);/returns true if test is within tolerance of compareTo
+bool init(drawbotState &state);//used to home and initialize machine
+string chooseFile(string search = "*.*");//search for files from term, open file selection, returns name of selected file
+void gcodeErr(byte ltr, unsigned int num);//prints error to screen, waits for button press, than ends program
+void readGcodeLine (string line, drawbotState &state);//reads line of G-Code and updates state structure
+void goToState(drawbotState &state);//takes state structure and moves machine to match it.
+void sendtomaster(string msg, byte mbx = 0);//sends message to outbound mailbox(10-19)
+
+task main(){
+  SetSensor(S1, SENSOR_TOUCH);//initialize sensors
+  SetSensor(S4, SENSOR_TOUCH);
+  string progName, lineTxt;
+  unsigned int result, size, lnNum;
+  drawbotState state;
+  state.f = Fmax;//init feedrate to max
+  byte handle;
+//check if connected to master program.
+  bool slave;
+  for(byte i = 0; i<20; i++){//waits a bit for master program(NXT Driver) to connect, checks every 100 ms for 2 seconds
+    ReceiveMessage(1, true, lineTxt);
+    if(lineTxt == "SlaveMode"){//if message recieved from master, send responce and play high tone
+      sendtomaster("Ready", 1);   
+      TextOut(5, LCD_LINE3, "Connected");
+      PlayTone(TONE_C5, 200);Wait(210);
+      slave = true;
+      goto mainLoop; //breaks loop, skips setup for independant operation
+    }
+    Wait(100);
+  }
+  TextOut(5, LCD_LINE3, "No Connection");//sets up for independant operation, chooseing and opening file
+  PlayTone(TONE_C4, 200);Wait(210);
+  slave = false;
+  progName = chooseFile("*.txt");
+  result = OpenFileRead(progName, size, handle);
+mainLoop:
+  init(state);//home machine
+  while(result == 0){
+    if(slave){//gets line as slave
+      while(ReceiveMessage(1, true, lineTxt));  //"RecieveMessage" returns 0 when successful
+      lnNum ++;
+      if(lineTxt == "endProg")break;//break loop then end program if master sends "endProg" command
+      sendtomaster(NumToStr(lnNum), 1);  //send current line num to master
+    }
+    else result = ReadLnString(handle, lineTxt);//gets line independatly
+    Wait(6);
+    readGcodeLine(lineTxt, state);//read line
+    if(state.once){//check for one time commands and do them if nessisary
+      if(state.once==28)init(state);
+      if(state.once == 4)Wait(state.p);
+      state.once = 0;//clear once
+    }
+    goToState(state); //make movements
+  }//end while loop(looping through each line)
+  if(!slave){//close file if working independantly
+    CloseFile(handle);
+    if(result != 0x8500){
+      NumOut(10, LCD_LINE3, result);
+      PlayFile("! attention");
+      until(ButtonCount(BTNCENTER, true));
+    }
+  }
+  PlayTone(TONE_C5, 400); Wait(410);
+}        //end main
+
+//function definitions
+bool tol(int test, int compareTo, int tolerance = 3){
+  if((test >= compareTo - tolerance)&& (test <= compareTo + tolerance))return true;
+  else return false;
+}
+
+bool init(drawbotState &state){
+//Home Z
+  OnFwd(motorZ, 15);
+  Wait(500);
+  Off(motorZ);
+//Home X
+  OnRev(motorX, 60);
+  until(limX);
+  Off(motorX);
+  Wait(50);
+//Home Y
+  OnRev(motorY, 60);
+  until(limY);
+  Off(motorY);
+  Wait(100);
+//reset rotation counts and enable/configure posReg
+  ResetRotationCount(motorX);
+  ResetRotationCount(motorY);
+  ResetRotationCount(motorZ);
+  Wait(100);
+  PosRegEnable(motorX, 200, 18, 30);
+  PosRegEnable(motorY, 200, 18, 30);
+  PosRegEnable(motorZ, 200, 35, 30);
+  Wait(10);
+  PosRegSetMax(OUT_ABC, 0, 50);
+  SetMotorRegulationTime(25);
+  Wait(10);
+//make sure state is zeroed as well
+  state.x = 0;
+  state.y = 0;
+  state.prevX = 0;
+  state.prevY = 0;
+  return true;
+}
+
+string chooseFile(string search = "*.*"){//searches file system for given term, brings up selection UI, then returns choosen filename.
+  byte handle;
+  unsigned int result;
+  string list[20];//array to hold filenames
+  result = FindFirstFile(search, handle);//open file search using term parameter, returns status and handle
+  Wait(6);
+  char listLen = 0;
+  for(; result == LDR_SUCCESS; listLen++){//loop until result returns an error
+    list[listLen] = search;//add name to list, than find another file
+    result = FindNextFile(search, handle);
+    Wait(6);
+    if(listLen>20)break;//do not let loop exceed size of array.
+  }
+  list[listLen] = search;
+  if(listLen == 1)return list[0];//don't open selection if a single result is found
+  ButtonCount(BTNLEFT, true);
+  ButtonCount(BTNRIGHT, true);
+  ButtonCount(BTNCENTER, true);
+  char cycle = 0;
+  CloseFile(handle);//close search handle
+  while(true){//file selection UI
+    cycle = (cycle + ButtonCount(BTNRIGHT, true)-ButtonCount(BTNLEFT, true))%listLen; //update cycle from button presses, which is the index of currently selected file
+    if(ButtonCount(BTNCENTER, true)>0){//return choosen file when center btn is pressed
+      ResetScreen();
+      return list[cycle];
+    }
+    if(cycle<0)cycle += listLen;//if cycle is negative, loop to end of file list
+    RectOut(0, 29, 99, 13, true);//print rectange around middle file
+    TextOut(2, LCD_LINE2, list[(cycle==0?listLen:cycle)-1]);//prints file before selected one, looping to the end if needed
+    TextOut(2, LCD_LINE4, list[cycle]);//prints selected file
+    TextOut(2, LCD_LINE6, list[(cycle+1)%listLen]);//prints file after selected one, looping to beginning if nessisary.
+    //NumOut(10, LCD_LINE1, cycle);//for debugging cycle system
+    Wait(10);
+  }
+}
+
+void gcodeErr(byte ltr, unsigned int num){//prints error for unsupported commands
+  byte letter[1];
+  letter[0] = toupper(ltr);
+  TextOut(5, LCD_LINE3, ByteArrayToStr(letter), true);
+  NumOut(11, LCD_LINE3, num);
+  TextOut(5, LCD_LINE4, "Not Supported");
+  TextOut(18, LCD_LINE6, "Push Orange");
+  TextOut(20, LCD_LINE7, "Btn to End");
+  PlayFile("! Attention.rso");
+  until(ButtonPressed(BTNCENTER, false));//wait until button pressed to end
+  Stop(true);
+}
+void readGcodeLine (string line, drawbotState &state){//takes line of text and saves values given to state struct
+  bool commentFlag = false;
+  byte ltr, numStart = 0;
+  float num;
+  for(byte i =0; i<strlen(line); i++){//looping through each letter in line
+    ltr = StrIndex(line, i);
+    if (ltr == '%'||ltr == ';')return;//move to next line if % or ;(Comment to EOL)
+    else if(ltr == '('||ltr == ')'){//ignore comments, set flag on '(', remove on ')'
+      commentFlag = !commentFlag;
+      NumOut(10, LCD_LINE3, commentFlag, true);
+      NumOut(10, LCD_LINE4, i);
+      while(ButtonCount(BTNCENTER, true)==0);
+      continue;
+    }
+    else if(ltr <= ' '||commentFlag)continue;//go to next char if in comment or space
+    //spaces, %, comments all removed
+    
+    else if(isalpha(ltr)){//when letter is found, save it's number to corresponding var
+      numStart = ++i;//increment i to be at the start of  the number, save as start of the number
+      ltr = tolower(ltr);
+      while(isdigit(StrIndex(line, i))||StrIndex(line, i)==46)i++;//increment i until end of the number. When finished, i is the index 1 after the end of the number.
+      num = StrToNum(SubStr(line, numStart, (i-numStart)));//convert string number to float
+      if(num < 0)gcodeErr(ltr, num);//throw err if negative, no negitive numbers are supported
+      i--;//decrement i to point to the last digit of the number
+      switch(ltr){
+        case 'o'://go to next line if 'O' command
+          return;
+        case 'n':// go to next letter set if 'N' command
+          continue;
+        case 'x':
+          if(state.inch)num *=25.4;//convert to absolute mm if needed before saving to state struct
+          if(state.inc)num += state.prevX;
+          state.x = num;
+          break;
+        case 'y':
+          if(state.inch)num *=25.4;//convert to absolute mm if needed before saving to state struct
+          if(state.inc)num += state.prevY;
+          state.y = num;
+          break;
+        case 'z':
+          if(num <= 0)state.draw = true;//Z commands can be used for pen raise/lower, ,=0 is down, >0 is up
+          else state.draw = false;
+          break;
+        case 'p'://pause time in ms
+          if(num > 0)state.p = num;
+          break;
+        case 'f'://feedrate in mm/min
+          if((num > 0) && (num < Fmax))state.f = num;
+          break;
+        case 'g':
+          if(num < 2)state.mvmt = num;//save rapid state
+          else if(num == 4)state.once = 4;
+          else if(num == 20)state.inch = true;//inch or metric
+          else if(num == 21)state.inch = false;
+          else if(num == 28)state.once = 28;//home
+          else if(num == 90)state.inc = false;//absolute or incramental
+          else if(num == 91)state.inc = true;
+          break;
+        case 'm':
+          if(num == 3||num == 4)state.draw = true;//pen down
+          else if(num == 5)state.draw = false;//pen up
+          else if(num == 117){//print to screen
+            TextOut(0, LCD_LINE3, SubStr(line, ++i, StrLen(line)-i), true);
+            return;
+          }
+          break;
+        default:
+          gcodeErr(ltr, num);
+      }//end switch
+    }//end else if
+  }//end for loop
+}//end function
+
+void goToState(drawbotState &state){//controls motion, taking state as input
+  if(!tol(MotorRotationCount(motorZ), (state.draw ? Zdown : 0), 5)){//if pen needs to be raised/lowered, move it
+    Wait(200);
+    PosRegSetAngle(motorZ, (state.draw? Zdown : 0));
+    Wait(250);
+  }
+  int setX = 0, setY = 0;
+  unsigned long lastTick;
+  float t;//number of times the loop will run
+  //checking x/y limits before moving
+  if(state.x > Xmax)state.x = Xmax;
+  else if(state.x < 0)state.x = 0;
+  if(state.y > Ymax)state.y = Ymax;
+  else if(state.y < 0)state.y = 0;
+  byte loopTime = (state.mvmt==0?17:(1/(state.f/60000.0)));//setting loop time based on feedrate.
+  t = ceil(sqrt(pow(state.x - state.prevX, 2) + pow(state.y-state.prevY, 2)));//find distance of line in mm, set loop limit t to that distance
+  for(unsigned int i = 0; i <= t; i++){//looping every 'looptime' ms for 't' times.
+    lastTick = CurrentTick();//save current clock time
+    setX = ((1-(i/t))*state.prevX + (i/t)*state.x)*Xscale;//calculate new position by taking the weighted average of set x/y and prevX/Y
+    setY = ((1-(i/t))*state.prevY + (i/t)*state.y)*Yscale;// i/t is the % of the line to be at, used as the weighting factor.
+  //move motors
+    PosRegSetAngle(motorX, setX);
+    PosRegSetAngle(motorY, setY);
+  //wait until looptime is met before continueing
+    until(CurrentTick()>(lastTick + loopTime));
+  }
+  state.prevX = state.x;
+  state.prevY = state.y;
+  //wait for motors to reach setpoint all the way before returning
+  until(tol(MotorRotationCount(motorX), setX, 20));
+  until(tol(MotorRotationCount(motorY), setY, 20));
+}
+void sendtomaster(string msg, byte mbx = 0){
+  if(mbx < 9) mbx += 10;//if lower (recieving) mailbox specified, shift to upper sending mailbox
+  SendMessage(mbx, msg);
+}
