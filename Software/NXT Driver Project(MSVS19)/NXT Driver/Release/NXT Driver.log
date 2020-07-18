@@ -1,0 +1,62 @@
+﻿  NXT Driver.cpp
+C:\Users\West Family\source\repos\NXT Driver\NXT Driver\NXT Driver.cpp(18,19): warning C4273: 'exit': inconsistent dll linkage
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\ucrt\stdlib.h(52,48): message : see previous definition of 'exit'
+C:\Users\West Family\source\repos\NXT Driver\NXT Driver\NXT Driver.cpp(101,20): warning C4018: '<': signed/unsigned mismatch
+C:\Users\West Family\source\repos\NXT Driver\NXT Driver\NXT Driver.cpp(141,31): warning C4267: 'argument': conversion from 'size_t' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=ViByte
+          ]
+C:\Users\West Family\source\repos\NXT Driver\NXT Driver\NXT Driver.cpp(142,20): warning C4018: '<': signed/unsigned mismatch
+C:\Users\West Family\source\repos\NXT Driver\NXT Driver\NXT Driver.cpp(148,39): warning C4838: conversion from 'int' to 'ViByte' requires a narrowing conversion
+C:\Users\West Family\source\repos\NXT Driver\NXT Driver\NXT Driver.cpp(160,17): warning C4018: '<': signed/unsigned mismatch
+  comm.cpp
+C:\Users\West Family\source\repos\NXT Driver\NXT Driver\nxtpp_07\src\comm.cpp(648,33): warning C4804: '>=': unsafe use of type 'bool' in operation
+C:\Users\West Family\source\repos\NXT Driver\NXT Driver\nxtpp_07\src\comm.cpp(730,42): warning C4474: 'printf' : too many arguments passed for format string
+C:\Users\West Family\source\repos\NXT Driver\NXT Driver\nxtpp_07\src\comm.cpp(730,42): message : placeholders and their parameters expect 0 variadic arguments, but 1 were provided
+  nxt++.cpp
+C:\Users\West Family\source\repos\NXT Driver\NXT Driver\nxtpp_07\src\nxt++.cpp(43,51): warning C4838: conversion from 'int' to 'ViUInt8' requires a narrowing conversion
+C:\Users\West Family\source\repos\NXT Driver\NXT Driver\nxtpp_07\src\nxt++.cpp(43,84): warning C4838: conversion from 'int' to 'ViUInt8' requires a narrowing conversion
+C:\Users\West Family\source\repos\NXT Driver\NXT Driver\nxtpp_07\src\nxt++.cpp(43,98): warning C4838: conversion from 'int' to 'ViUInt8' requires a narrowing conversion
+C:\Users\West Family\source\repos\NXT Driver\NXT Driver\nxtpp_07\src\nxt++.cpp(43,129): warning C4838: conversion from 'int' to 'ViUInt8' requires a narrowing conversion
+C:\Users\West Family\source\repos\NXT Driver\NXT Driver\nxtpp_07\src\nxt++.cpp(138,42): warning C4838: conversion from 'int' to 'ViUInt8' requires a narrowing conversion
+C:\Users\West Family\source\repos\NXT Driver\NXT Driver\nxtpp_07\src\nxt++.cpp(160,42): warning C4838: conversion from 'int' to 'ViUInt8' requires a narrowing conversion
+C:\Users\West Family\source\repos\NXT Driver\NXT Driver\nxtpp_07\src\nxt++.cpp(166,42): warning C4838: conversion from 'int' to 'ViUInt8' requires a narrowing conversion
+C:\Users\West Family\source\repos\NXT Driver\NXT Driver\nxtpp_07\src\nxt++.cpp(166,48): warning C4838: conversion from 'int' to 'ViUInt8' requires a narrowing conversion
+C:\Users\West Family\source\repos\NXT Driver\NXT Driver\nxtpp_07\src\nxt++.cpp(172,42): warning C4838: conversion from 'int' to 'ViUInt8' requires a narrowing conversion
+C:\Users\West Family\source\repos\NXT Driver\NXT Driver\nxtpp_07\src\nxt++.cpp(172,48): warning C4838: conversion from 'int' to 'ViUInt8' requires a narrowing conversion
+C:\Users\West Family\source\repos\NXT Driver\NXT Driver\nxtpp_07\src\nxt++.cpp(180,43): warning C4838: conversion from 'int' to 'ViUInt8' requires a narrowing conversion
+C:\Users\West Family\source\repos\NXT Driver\NXT Driver\nxtpp_07\src\nxt++.cpp(185,43): warning C4838: conversion from 'int' to 'ViUInt8' requires a narrowing conversion
+C:\Users\West Family\source\repos\NXT Driver\NXT Driver\nxtpp_07\src\nxt++.cpp(192,42): warning C4838: conversion from 'int' to 'ViUInt8' requires a narrowing conversion
+C:\Users\West Family\source\repos\NXT Driver\NXT Driver\nxtpp_07\src\nxt++.cpp(198,42): warning C4838: conversion from 'int' to 'ViUInt8' requires a narrowing conversion
+C:\Users\West Family\source\repos\NXT Driver\NXT Driver\nxtpp_07\src\nxt++.cpp(220,42): warning C4838: conversion from 'int' to 'ViUInt8' requires a narrowing conversion
+C:\Users\West Family\source\repos\NXT Driver\NXT Driver\nxtpp_07\src\nxt++.cpp(226,42): warning C4838: conversion from 'int' to 'ViUInt8' requires a narrowing conversion
+C:\Users\West Family\source\repos\NXT Driver\NXT Driver\nxtpp_07\src\nxt++.cpp(234,43): warning C4838: conversion from 'int' to 'ViUInt8' requires a narrowing conversion
+C:\Users\West Family\source\repos\NXT Driver\NXT Driver\nxtpp_07\src\nxt++.cpp(239,43): warning C4838: conversion from 'int' to 'ViUInt8' requires a narrowing conversion
+C:\Users\West Family\source\repos\NXT Driver\NXT Driver\nxtpp_07\src\nxt++.cpp(246,42): warning C4838: conversion from 'int' to 'ViUInt8' requires a narrowing conversion
+C:\Users\West Family\source\repos\NXT Driver\NXT Driver\nxtpp_07\src\nxt++.cpp(252,42): warning C4838: conversion from 'int' to 'ViUInt8' requires a narrowing conversion
+C:\Users\West Family\source\repos\NXT Driver\NXT Driver\nxtpp_07\src\nxt++.cpp(258,42): warning C4838: conversion from 'int' to 'ViUInt8' requires a narrowing conversion
+C:\Users\West Family\source\repos\NXT Driver\NXT Driver\nxtpp_07\src\nxt++.cpp(270,42): warning C4838: conversion from 'int' to 'ViUInt8' requires a narrowing conversion
+C:\Users\West Family\source\repos\NXT Driver\NXT Driver\nxtpp_07\src\nxt++.cpp(300,42): warning C4838: conversion from 'int' to 'ViUInt8' requires a narrowing conversion
+C:\Users\West Family\source\repos\NXT Driver\NXT Driver\nxtpp_07\src\nxt++.cpp(300,48): warning C4838: conversion from 'int' to 'ViUInt8' requires a narrowing conversion
+C:\Users\West Family\source\repos\NXT Driver\NXT Driver\nxtpp_07\src\nxt++.cpp(300,57): warning C4838: conversion from 'int' to 'ViUInt8' requires a narrowing conversion
+C:\Users\West Family\source\repos\NXT Driver\NXT Driver\nxtpp_07\src\nxt++.cpp(306,42): warning C4838: conversion from 'int' to 'ViUInt8' requires a narrowing conversion
+C:\Users\West Family\source\repos\NXT Driver\NXT Driver\nxtpp_07\src\nxt++.cpp(366,6): warning C4101: 'volatilityRatio': unreferenced local variable
+C:\Users\West Family\source\repos\NXT Driver\NXT Driver\nxtpp_07\src\nxt++.cpp(424,41): warning C4838: conversion from 'int' to 'ViUInt8' requires a narrowing conversion
+C:\Users\West Family\source\repos\NXT Driver\NXT Driver\nxtpp_07\src\nxt++.cpp(437,41): warning C4838: conversion from 'int' to 'ViUInt8' requires a narrowing conversion
+C:\Users\West Family\source\repos\NXT Driver\NXT Driver\nxtpp_07\src\nxt++.cpp(447,45): warning C4838: conversion from 'int' to 'ViUInt8' requires a narrowing conversion
+C:\Users\West Family\source\repos\NXT Driver\NXT Driver\nxtpp_07\src\nxt++.cpp(458,42): warning C4838: conversion from 'int' to 'ViUInt8' requires a narrowing conversion
+C:\Users\West Family\source\repos\NXT Driver\NXT Driver\nxtpp_07\src\nxt++.cpp(471,41): warning C4838: conversion from 'int' to 'ViUInt8' requires a narrowing conversion
+C:\Users\West Family\source\repos\NXT Driver\NXT Driver\nxtpp_07\src\nxt++.cpp(480,41): warning C4838: conversion from 'int' to 'ViUInt8' requires a narrowing conversion
+C:\Users\West Family\source\repos\NXT Driver\NXT Driver\nxtpp_07\src\nxt++.cpp(489,41): warning C4838: conversion from 'int' to 'ViUInt8' requires a narrowing conversion
+C:\Users\West Family\source\repos\NXT Driver\NXT Driver\nxtpp_07\src\nxt++.cpp(498,41): warning C4838: conversion from 'int' to 'ViUInt8' requires a narrowing conversion
+C:\Users\West Family\source\repos\NXT Driver\NXT Driver\nxtpp_07\src\nxt++.cpp(498,71): warning C4838: conversion from 'int' to 'ViUInt8' requires a narrowing conversion
+C:\Users\West Family\source\repos\NXT Driver\NXT Driver\nxtpp_07\src\nxt++.cpp(528,36): warning C4838: conversion from 'int' to 'ViUInt8' requires a narrowing conversion
+C:\Users\West Family\source\repos\NXT Driver\NXT Driver\nxtpp_07\src\nxt++.cpp(651,42): warning C4838: conversion from 'int' to 'ViUInt8' requires a narrowing conversion
+C:\Users\West Family\source\repos\NXT Driver\NXT Driver\nxtpp_07\src\nxt++.cpp(686,36): warning C4838: conversion from 'int' to 'ViUInt8' requires a narrowing conversion
+     Creating library C:\Users\West Family\source\repos\NXT Driver\Release\NXT Driver.lib and object C:\Users\West Family\source\repos\NXT Driver\Release\NXT Driver.exp
+  Generating code
+  Previous IPDB not found, fall back to full compilation.
+  All 759 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Finished generating code
+  NXT Driver.vcxproj -> C:\Users\West Family\source\repos\NXT Driver\Release\NXT Driver.exe

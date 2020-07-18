@@ -1,0 +1,14 @@
+﻿  NXT Driver.cpp
+C:\Users\West Family\source\repos\NXT Driver\NXT Driver\NXT Driver.cpp(18,19): warning C4273: 'exit': inconsistent dll linkage
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\ucrt\stdlib.h(52,48): message : see previous definition of 'exit'
+C:\Users\West Family\source\repos\NXT Driver\NXT Driver\NXT Driver.cpp(101,20): warning C4018: '<': signed/unsigned mismatch
+C:\Users\West Family\source\repos\NXT Driver\NXT Driver\NXT Driver.cpp(141,31): warning C4267: 'argument': conversion from 'size_t' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=ViByte
+          ]
+C:\Users\West Family\source\repos\NXT Driver\NXT Driver\NXT Driver.cpp(142,20): warning C4018: '<': signed/unsigned mismatch
+C:\Users\West Family\source\repos\NXT Driver\NXT Driver\NXT Driver.cpp(148,39): warning C4838: conversion from 'int' to 'ViByte' requires a narrowing conversion
+C:\Users\West Family\source\repos\NXT Driver\NXT Driver\NXT Driver.cpp(160,17): warning C4018: '<': signed/unsigned mismatch
+     Creating library C:\Users\West Family\source\repos\NXT Driver\Debug\NXT Driver.lib and object C:\Users\West Family\source\repos\NXT Driver\Debug\NXT Driver.exp
+  NXT Driver.vcxproj -> C:\Users\West Family\source\repos\NXT Driver\Debug\NXT Driver.exe
