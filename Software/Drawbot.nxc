@@ -1,0 +1,250 @@
+#define motorX OUT_B
+#define motorY OUT_C
+#define motorZ OUT_A
+#define limX SENSOR_4
+#define limY SENSOR_1
+#define Xmax 206 //dimensions in MM
+#define Ymax 223
+#define Zup 55
+#define Xscale -4.84
+#define Yscale -4.24
+const unsigned int Fmax = 3600; //in mm/min
+
+struct drawbotState{
+  float x, y, prevX, prevY; //add i, j, r eventually for circles. Variables stay in absolute mm
+  unsigned int f, p; //feed in mm/minute
+  byte mvmt, once;
+  bool inch, inc, draw; //rapid is G0, false is G1, Draw is whether it is drawing, M3/M5
+};
+bool tol(int test, int compareTo, int tolerance = 3){
+  if((test >= compareTo - tolerance)&& (test <= compareTo + tolerance))return true;
+  else return false;
+}
+
+bool init(drawbotState &state){
+  OnFwd(motorZ, 25);//lift Z for clearance
+  Wait(1000);
+  Off(motorZ);
+  RotateMotor(motorZ, 30, -35);
+  OnFwd(motorX, 60);//home X
+  until(limX);
+  Off(motorX);
+  Wait(50);
+  OnFwd(motorY, 60);
+  until(limY);
+  Off(motorY);
+  //RotateMotor(motorY, 40, 50);
+  Wait(100);
+  ResetRotationCount(motorY);
+  ResetRotationCount(motorX);
+  Wait(100);
+  PosRegEnable(motorX, 200, 18, 30);
+  PosRegEnable(motorY, 200, 18, 30);
+  Wait(100);
+  OnRev(motorZ, 10);
+  char prevCount = 0;
+  Wait(150);
+  until(tol(MotorRotationCount(motorZ), prevCount, 5)){
+    prevCount = MotorRotationCount(motorZ);
+    Wait(300);
+  }
+  Off(motorZ);
+  Wait(300);
+  ResetRotationCount(motorZ);
+  Wait(10);
+  PosRegEnable(motorZ, 200, 35, 30);
+  PosRegSetMax(motorZ, 10, 0);
+  Wait(100);
+  PosRegSetAngle(motorZ, Zup);
+  SetMotorRegulationTime(25);
+  Wait(10);
+  state.x = 0;
+  state.y = 0;
+  state.prevX = 0;
+  state.prevY = 0;
+  return true;
+}
+
+string chooseFile(string search = "*.*"){//searches file system for argument, brings up selection UI, then returns choosen filename.
+  byte handle;
+  unsigned int result;
+  string list[10];
+  result = FindFirstFile(search, handle);
+  Wait(6);
+  byte listLen = 0;
+  for(; result == LDR_SUCCESS; listLen++){
+    list[listLen] = search;
+    result = FindNextFile(search, handle);
+    Wait(6);
+    if(listLen>ArrayLen(list))break;
+  }
+  list[listLen] = search;
+  if(listLen == 1)return list[0];//don't open selection if single result is found
+  ButtonCount(BTNLEFT, true);
+  ButtonCount(BTNRIGHT, true);
+  ButtonCount(BTNCENTER, true);
+  char cycle = 0;
+  CloseFile(handle);
+  while(true){
+    cycle = (cycle + ButtonCount(BTNRIGHT, true)-ButtonCount(BTNLEFT, true))%listLen;
+    if(ButtonCount(BTNCENTER, true)>0){
+      ResetScreen();
+      return list[cycle];
+    }
+    RectOut(7, 29, 86, 13, true);
+    TextOut(10, LCD_LINE2, list[(cycle==0?listLen:cycle)-1]);
+    TextOut(10, LCD_LINE4, list[cycle]);
+    TextOut(10, LCD_LINE6, list[(cycle+1)%listLen]);
+    //NumOut(10, LCD_LINE1, cycle);
+    Wait(10);
+  }
+}
+
+void gcodeErr(byte ltr, unsigned int num){
+  byte letter[1];
+  letter[0] = toupper(ltr);
+  TextOut(5, LCD_LINE3, ByteArrayToStr(letter), true);
+  NumOut(11, LCD_LINE3, num);
+  TextOut(5, LCD_LINE4, "Not Supported");
+  TextOut(18, LCD_LINE6, "Push Orange");
+  TextOut(20, LCD_LINE7, "Btn to End");
+  PlayFile("! Attention.rso");
+  until(ButtonPressed(BTNCENTER, false));
+  Stop(true);
+}
+void readGcodeLine (string line, drawbotState &state){
+  bool commentFlag = false;
+  byte ltr, numStart = 0;
+  float num;
+  for(byte i =0; i<strlen(line); i++){
+    ltr = StrIndex(line, i);
+    if (ltr == '%'||ltr == ';')return;//move to next line if % or ;(Comment to EOL)
+    else if(ltr == '('||ltr == ')'){
+      commentFlag = !commentFlag;
+      /*NumOut(10, LCD_LINE3, commentFlag, true);
+      NumOut(10, LCD_LINE4, i);
+      while(ButtonCount(BTNCENTER, true)==0);*/
+      continue;
+    } else if(ltr <= ' '||commentFlag)continue;
+    //spaces, %, comments removed
+    else if(isalpha(ltr)){
+      numStart = ++i;//increment i, set this as start of number
+      ltr = tolower(ltr);
+      while(isdigit(StrIndex(line, i))||StrIndex(line, i)==46)i++;//increment i until end of the number
+      num = StrToNum(SubStr(line, numStart, (i-numStart)));//pull number out of line
+      /*NumOut(10, LCD_LINE3, ltr, true);
+      NumOut(10, LCD_LINE4, num);
+      NumOut(10, LCD_LINE5, i);
+      while(ButtonCount(BTNCENTER, true)==0);//*/
+      if(num < 0)gcodeErr(ltr, num);
+      switch(ltr){
+        case 'o':
+          return;
+        case 'n':
+          continue;
+        case 'x':
+          if(state.inch)num *=25.4;
+          if(state.inc)num += state.prevX;
+          state.x = num;
+          break;
+        case 'y':
+          if(state.inch)num *=25.4;
+          if(state.inc)num += state.prevY;
+          state.y = num;
+          break;
+        /*case 'i'://circles not implemented
+          state.i = num;
+          break;
+        case 'j':
+          state.j = num;
+          break;
+        case 'r':
+
+          state.r = num;
+          break;*/;
+        case 'p':
+          if(num > 0)state.p = num;
+          break;
+        case 'f':
+          if((num > 0) && (num < Fmax))state.f = num;
+          break;
+        case 'g':
+          if(num < 0)gcodeErr(ltr, num);
+          if(num < 2)state.mvmt = num;
+          else if(num == 4)state.once = 4;
+          else if(num == 20)state.inch = true;
+          else if(num == 21)state.inch = false;
+          else if(num == 28)state.once = 28;
+          else if(num == 90)state.inc = false;
+          else if(num == 91)state.inc = true;
+          break;
+        case 'm':
+          if(num == 3||num == 4)state.draw = true;
+          else if(num == 5)state.draw = false;
+          break;
+        default:
+          gcodeErr(ltr, num);
+      }//end switch
+      i--;
+    }//end else if
+  }//end for loop
+}//end function
+
+void goToState(drawbotState &state){//controls motion, taking state as input
+  PosRegSetAngle(motorZ, (state.draw? 0: Zup));
+  int setX = 0, setY = 0;
+  unsigned long lastTick;
+  float t;
+  byte loopTime = (state.mvmt==0?17:(1/(state.f/60000.0)));
+  if(state.x > Xmax)state.x = Xmax;
+  else if(state.x < 0)state.x = 0;
+  if(state.y > Ymax)state.y = Ymax;
+  else if(state.y < 0)state.y = 0;
+  t = ceil(sqrt(pow(state.x - state.prevX, 2) + pow(state.y-state.prevY, 2)));
+  until(tol(MotorRotationCount(motorZ), (state.draw ? 0 : Zup), 10));//make sure Z is finished before moving
+  for(unsigned int i = 0; !(i > t); i++){
+    lastTick = CurrentTick();
+    setX = ((1-(i/t))*state.prevX + (i/t)*state.x)*Xscale;
+    setY = ((1-(i/t))*state.prevY + (i/t)*state.y)*Yscale;
+  //move motors
+    PosRegSetAngle(motorX, setX);
+    PosRegSetAngle(motorY, setY);
+  //wait for motors to reach setpoint
+    until(CurrentTick()>(lastTick + loopTime));
+  }
+  state.prevX = state.x;
+  state.prevY = state.y;
+  until(tol(MotorRotationCount(motorX), setX, 20));
+  until(tol(MotorRotationCount(motorY), setY, 20));
+}
+
+task main(){
+  SetSensor(S1, SENSOR_TOUCH);
+  SetSensor(S4, SENSOR_TOUCH);
+  string progName, lineTxt;
+  unsigned int result, size;
+  drawbotState state;
+  state.f = Fmax;
+  byte handle;
+  progName = chooseFile("*.txt");
+  init(state);
+  result = OpenFileRead(progName, size, handle);
+  while(result == 0){
+    result = ReadLnString(handle, lineTxt);
+    Wait(6);
+    readGcodeLine(lineTxt, state);
+    if(state.once){
+      if(state.once==28)init(state);
+      else if(state.once == 4)Wait(state.p);
+      state.once = 0;
+    }
+    goToState(state); //after reading whole line and updating as nessisary, actually move
+  }      //end while loop(for each line)
+  CloseFile(handle);
+  if(result != 0x8500){
+    NumOut(10, LCD_LINE3, result);
+    PlayFile("! attention");
+    until(ButtonPressed(BTNCENTER, true));
+  }
+  PlayTone(TONE_C5, 400); Wait(410);
+}        //end main
