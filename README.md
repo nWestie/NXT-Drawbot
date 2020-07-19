@@ -1,8 +1,7 @@
 # NXT Drawbot
 #### Drawbot is a pen plotter built using Lego Mindstorms NXT
 
-The plotter uses a rolling gantry, which has wheels on either side, rolling in parallel slots. The gantry is made up of a trussed beam and a moving carriage that holds the pen. It is controlled using standard G-Code, but somewhat simplified. This G-Code can be saved locally to the NXT and run from the program, or run using the NXT Driver program on a windows computer. Pictures of the plotter can be found in the **Pictures** folder, and a video of it in operation can be found here:
-**YOUTUBE LINK**
+The plotter uses a rolling gantry, which has wheels on either side, rolling in parallel slots. The gantry is made up of a trussed beam and a moving carriage that holds the pen. It is controlled using standard G-Code, but somewhat simplified. This G-Code can be saved locally to the NXT and run from the program, or run using the NXT Driver program on a windows computer. Pictures of the plotter can be found in the **Pictures** folder, and videos of it in operation can be found in the **Examples** folder.
 
 #### NXT Drawbot Program
 The Drawbot program running on the NXT was coded in [NXC](bricxcc.sourceforge.net/nbc/), a c based language for the NXT. NXC is supported and compiled by [Brixcc](bricxcc.sourceforge.net). Additionally, the Drawbot program requires the Enhanced NXC Firmware 1.31, which can be downloaded to the NXT from Bricxcc. The firmware file is found in the Bricxcc folder in your computer's program files(x84) folder.

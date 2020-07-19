@@ -18,7 +18,7 @@ struct drawbotState{
   bool inch, inc, draw; //flags showing if commands are in inch or mm, incramental or absolute, and pen up or down(draw is true on pen down)
 };
 //predeclaring functons
-bool tol(int test, int compareTo, int tolerance = 3);/returns true if test is within tolerance of compareTo
+bool tol(int test, int compareTo, int tolerance = 3);//returns true if test is within tolerance of compareTo
 bool init(drawbotState &state);//used to home and initialize machine
 string chooseFile(string search = "*.*");//search for files from term, open file selection, returns name of selected file
 void gcodeErr(byte ltr, unsigned int num);//prints error to screen, waits for button press, than ends program
